@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2017 by helge (http://jsbin.com/bowacac/17/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Fall asleep to RR</title>
+<style id="jsbin-css">
+body {
+  background: #1b1b1b;
+  color: #ffffff;
+}
+
+a {
+  color: #ffffff;
+}
+
+iframe {
+  border: 0;
+  width: 350px;
+  height: 197px;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.panel {
+  padding: 10px;
+  width: 350px;
+  text-align: center;
+  background: #424242;
+  box-sizing: border-box;
+}
+
+input[type="number"] {
+  width: 50px;
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel">
+      <p>
+        <a href="#" class="play">Play</a>
+      </p>
+      <p>
+        <a href="#" class="open">Sleep</a>
+        <span># </span>
+        <input type="number" value="30">
+        <span> of minutes</span>
+      </p>
+      <p>
+        <a href="#" class="remaining"></a>
+      </p>
+    </div>
+  </div>
+  <div class="container">
+    <iframe src=""></iframe>
+  </div>
+<script id="jsbin-javascript">
+var PLAYER_URL = 'https://www.nrk.no/embed/PS*radioresepsjonen?autoplay=true';
+var win, time, start, now, timer;
+var p = document.querySelector('.play');
+var a = document.querySelector('.open');
+var n = document.querySelector('input[type="number"]');
+var o = document.querySelector('.remaining');
+var iframe = document.querySelector('iframe');
+
+p.onclick = function () {
+  if (!isPlaying()) {
+    play();
+  }
+  else {
+    stop();
+    stopSleep();
+  }
+};
+
+o.onclick = function () {
+  stopSleep();
+};
+
+a.onclick = function () {
+  if (!isPlaying())
+    play();
+  startSleep();
+};
+
+n.onchange = function () {
+  time = parseFloat(n.value) * 1000 * 60;
+};
+
+function isPlaying() {
+  return iframe.getAttribute('src') === PLAYER_URL;
+}
+
+function play() {
+  iframe.setAttribute('src', PLAYER_URL);
+  if (p.innerText !== 'Stop')
+    p.innerText = 'Stop';
+}
+
+function stop() {
+  iframe.setAttribute('src', '');
+  if (p.innerText !== 'Play')
+    p.innerText = 'Play';
+}
+
+function startSleep() {
+  stopSleep();
+  time = parseFloat(n.value) * 1000 * 60;
+  start = Date.now();
+  checkSleepTime();
+}
+
+function stopSleep() {
+  clearTimeout(timer);
+  timer = null;
+  o.innerHTML = '';
+}
+
+function checkSleepTime() {
+  now = Date.now();
+  if (now - start >= time) {
+    stop();
+    stopSleep();
+    return;
+  }
+  o.innerHTML = 'Remaining: ' + msToTime(start + time - now);
+  timer = setTimeout(checkSleepTime, 100);
+}
+
+function msToTime(dur) {
+  var sec = parseInt((dur / 1000) % 60),
+      min = parseInt((dur / (1000 * 60)) % 60),
+      h = parseInt((dur / (1000 * 60 * 60)) % 24),
+      hStr = addZero(h);
+  return (h > 0 ? h + ':' : '') + addZero(min) + ':' + addZero(sec);
+}
+
+function addZero(val) {
+  return val < 10 ? 
+          '0' + val.toString() : 
+          val.toString();
+}
+
+
+</script>
+</body>
+</html>
